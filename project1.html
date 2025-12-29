@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Currency Comparison</title>
+<title>Currency & Market Checker</title>
 
 <style>
 body{
@@ -24,13 +24,13 @@ section{
     background:white;
     color:black;
     padding:30px;
-    width:330px;
+    width:360px;
     border-radius:12px;
     text-align:center;
     box-shadow:0 10px 25px rgba(0,0,0,0.3);
 }
 
-input,select{
+input, select{
     width:100%;
     padding:10px;
     margin:10px 0;
@@ -53,9 +53,14 @@ input,select{
     background:#c33764;
 }
 
+.logo-box{
+    display:flex;
+    gap:30px;
+}
+
 .logo{
-    width:200px;
-    height:200px;
+    width:160px;
+    height:160px;
     background:white;
     color:black;
     border-radius:50%;
@@ -64,12 +69,12 @@ input,select{
     justify-content:center;
     align-items:center;
     text-decoration:none;
-    font-size:55px;
+    font-size:45px;
 }
 
 .logo span{
-    font-size:16px;
-    margin-top:10px;
+    font-size:14px;
+    margin-top:8px;
 }
 
 .result{
@@ -78,6 +83,10 @@ input,select{
     background:#f2f2f2;
     border-radius:8px;
     font-weight:bold;
+}
+
+canvas{
+    margin-top:15px;
 }
 </style>
 </head>
@@ -88,85 +97,155 @@ input,select{
 <section id="login">
     <div class="card">
         <h2>Login</h2>
-        <input type="text" placeholder="Username or Email">
+        <input type="text" placeholder="Username">
         <input type="password" placeholder="Password">
-        <a href="#landing"><button class="button">Login</button></a>
+        <a href="#options"><button class="button">Login</button></a>
     </div>
 </section>
 
-<!-- LANDING -->
-<section id="landing">
-    <a href="#country" class="logo">
-        💱
-        <span>Currency Compare</span>
-    </a>
+<!-- OPTIONS -->
+<section id="options">
+    <div class="logo-box">
+        <a href="#currency" class="logo">💱<span>Currency Compare</span></a>
+        <a href="#market" class="logo">📈<span>Market Value</span></a>
+    </div>
 </section>
 
-<!-- COUNTRY SELECTION -->
-<section id="country">
+<!-- CURRENCY COMPARISON -->
+<section id="currency">
     <div class="card">
-        <h2>Select Currency</h2>
+        <h2>Currency Comparison</h2>
 
-        <label>From</label>
         <select id="from">
-            <option value="INR">India (INR)</option>
-            <option value="USD">USA (USD)</option>
-            <option value="EUR">Europe (EUR)</option>
-            <option value="GBP">UK (GBP)</option>
-            <option value="JPY">Japan (JPY)</option>
+            <option value="INR">INR</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
         </select>
 
-        <label>To</label>
         <select id="to">
-            <option value="USD">USA (USD)</option>
-            <option value="INR">India (INR)</option>
-            <option value="EUR">Europe (EUR)</option>
-            <option value="GBP">UK (GBP)</option>
-            <option value="JPY">Japan (JPY)</option>
+            <option value="USD">USD</option>
+            <option value="INR">INR</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
         </select>
 
-        <a href="#amount"><button class="button">Next</button></a>
-    </div>
-</section>
-
-<!-- AMOUNT & RESULT -->
-<section id="amount">
-    <div class="card">
-        <h2>Enter Amount</h2>
-
-        <input type="number" id="amountInput" placeholder="Enter amount">
+        <input type="number" id="amount" placeholder="Enter Amount">
 
         <button class="button" onclick="convert()">Convert</button>
 
-        <div class="result" id="result">Result will appear here</div>
+        <div class="result" id="currencyResult">Result will appear here</div>
+    </div>
+</section>
+
+<!-- MARKET PAGE -->
+<section id="market">
+    <div class="card">
+        <h2>Market Value</h2>
+
+        <input type="text" id="itemInput"
+         placeholder="Gold / Silver / Bitcoin / Diamond">
+
+        <button class="button" onclick="checkMarket()">Check Value</button>
+
+        <div class="result" id="marketResult">Result will appear here</div>
+
+        <canvas id="marketGraph" width="280" height="200" style="display:none;"></canvas>
     </div>
 </section>
 
 <script>
-// Sample conversion rates (base = INR)
+// ------------------ CURRENCY ------------------
 const rates = {
     INR: 1,
     USD: 0.012,
     EUR: 0.011,
-    GBP: 0.0095,
-    JPY: 1.8
+    GBP: 0.0095
 };
 
 function convert(){
-    let amount = document.getElementById("amountInput").value;
+    let amount = document.getElementById("amount").value;
     let from = document.getElementById("from").value;
     let to = document.getElementById("to").value;
 
     if(amount === ""){
-        alert("Please enter amount");
+        alert("Enter amount");
         return;
     }
 
-    let amountInINR = amount / rates[from];
-    let converted = amountInINR * rates[to];
+    let inINR = amount / rates[from];
+    let result = inINR * rates[to];
 
-    document.getElementById("result").innerHTML =
-        amount + " " + from + " = " + converted.toFixed(2) + " " + to;
+    document.getElementById("currencyResult").innerHTML =
+        `${amount} ${from} = ${result.toFixed(2)} ${to}`;
+}
+
+// ------------------ MARKET ------------------
+async function checkMarket(){
+    let item = document.getElementById("itemInput").value.toLowerCase();
+    let resultBox = document.getElementById("marketResult");
+
+    let value = 0;
+    let unit = "";
+
+    if(item === "gold"){
+        value = 6200;
+        unit = "₹ / gram";
+    }
+    else if(item === "silver"){
+        value = 75;
+        unit = "₹ / gram";
+    }
+    else if(item === "diamond"){
+        value = 250000;
+        unit = "₹ / carat";
+    }
+    else if(item === "bitcoin"){
+        try{
+            let res = await fetch("https://api.coindesk.com/v1/bpi/currentprice/INR.json");
+            let data = await res.json();
+            value = data.bpi.INR.rate_float;
+            unit = "₹";
+        }catch{
+            resultBox.innerHTML = "Unable to fetch Bitcoin price";
+            return;
+        }
+    }
+    else{
+        resultBox.innerHTML = "Invalid item";
+        document.getElementById("marketGraph").style.display = "none";
+        return;
+    }
+
+    resultBox.innerHTML = `Current ${item.toUpperCase()} Price: ${value.toFixed(2)} ${unit}`;
+    drawGraph(value);
+}
+
+function drawGraph(current){
+    let canvas = document.getElementById("marketGraph");
+    canvas.style.display = "block";
+    let ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    let prev = current * 0.9;
+    let high = current * 1.1;
+    let max = Math.max(prev, current, high);
+    let scale = 120 / max;
+
+    ctx.fillStyle = "#1d2671";
+    ctx.fillRect(40,160-prev*scale,50,prev*scale);
+
+    ctx.fillStyle = "#c33764";
+    ctx.fillRect(120,160-current*scale,50,current*scale);
+
+    ctx.fillStyle = "#2ecc71";
+    ctx.fillRect(200,160-high*scale,50,high*scale);
+
+    ctx.fillStyle = "black";
+    ctx.fillText("Prev",50,180);
+    ctx.fillText("Now",130,180);
+    ctx.fillText("High",210,180);
 }
 </script>
 
